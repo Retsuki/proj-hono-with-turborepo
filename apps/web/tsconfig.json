@@ -5,7 +5,13 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "strict": true,
+    "paths": {
+      "@apps/backend": [
+        "../backend/src"
+      ]
+    }
   },
   "include": [
     "**/*.ts",
@@ -16,5 +22,5 @@
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
 }

@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3002",
     "lint": "next lint --max-warnings 0",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@repo/ui": "workspace:*",
+    "@apps/backend": "workspace:*",
+    "hono": "^4.6.16",
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
