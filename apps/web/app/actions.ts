@@ -1,4 +1,5 @@
-// app/actions.ts
+// apps/web/app/actions.ts
+
 "use server";
 
 import type { AppType } from "@apps/backend";

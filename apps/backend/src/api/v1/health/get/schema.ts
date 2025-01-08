@@ -1,3 +1,5 @@
+// apps/backend/src/api/v1/health/get/schema.ts
+
 import { z } from "@hono/zod-openapi";
 
 export const healthPostSchema = z.object({

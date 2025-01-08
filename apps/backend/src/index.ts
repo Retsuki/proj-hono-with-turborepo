@@ -1,3 +1,5 @@
+//apps/backend/src/index.ts
+
 import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";

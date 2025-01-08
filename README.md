@@ -1,84 +1,52 @@
-# Turborepo starter
-
-This is an official starter Turborepo.
-
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+## プロジェクト構成とファイル概要
 
 ```
-cd my-turborepo
-pnpm build
+.
+└── apps
+    ├── web
+    │   ├── app
+    │   │   ├── actions.ts        # フロントエンドからバックエンドへのAPIリクエストを管理するサーバーサイドアクション（RPCを使用）
+    │   │   ├── page.tsx          # ユーザーが新しい投稿を作成するフォームを提供するフロントエンドのホームページコンポーネント
+    │   │   └── tsconfig.json     # `web`アプリケーションのTypeScript設定ファイル
+    ├── backend
+    │   ├── tsconfig.json         # バックエンドアプリケーションのTypeScript設定ファイル
+    │   └── src
+    │       ├── api
+    │       │   └── v1
+    │       │       └── health
+    │       │           ├── get
+    │       │           │   ├── schema.ts        # `/api/v1/health` エンドポイントのリクエストおよびレスポンスのスキーマ定義
+    │       │           │   ├── route.ts         # `/api/v1/health` エンドポイントのルート設定
+    │       │           │   └── controller.ts    # `/api/v1/health` エンドポイントのリクエストを処理するコントローラー
+    │       └── index.ts             # バックエンドサーバーのエントリーポイント。Honoフレームワークを使用してAPIサーバーを設定および起動
 ```
 
-### Develop
 
-To develop all apps and packages, run the following command:
+## 技術スタックの概要
 
-```
-cd my-turborepo
-pnpm dev
-```
+- **Turborepo**: モノレポ管理ツールとして使用し、フロントエンド（`web`）とバックエンド（`backend`）の両方のアプリケーションを一元管理。
+- **Next.js**: フロントエンドフレームワークとして使用し、サーバーサイドレンダリングや静的サイト生成を提供。
+- **Hono**: 高性能なNode.js向けフレームワークとしてバックエンドAPIを構築。
+- **RPC (Remote Procedure Call)**:
+  - **使用箇所**: `apps/web/app/actions.ts` と `apps/backend/index.ts` で実装。
+  - **概要**: フロントエンドとバックエンド間でリモートプロシージャコールを行うことで、型安全かつ効率的な通信を実現。
+  - **具体的な実装**:
+    - フロントエンドの `actions.ts` では、`Hono` クライアント (`hc<AppType>`) を使用してバックエンドのAPIエンドポイントに対してRPCリクエストを送信。
+    - バックエンドの `index.ts` では、`AppType` を定義してRPCインターフェースを提供し、クライアントからのリクエストを受け付けて処理。
+- **OpenAPI**: APIの仕様書を定義し、Swagger UIを通じてドキュメントを提供。
 
-### Remote Caching
+## RPCの具体的な流れ
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+1. **型定義の共有**:
+   - バックエンドの `AppType` を `apps/backend/index.ts` で定義し、フロントエンドでこの型をインポートして使用することで、クライアントとサーバー間で共有された型安全な通信を実現します。
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+2. **クライアントからのRPCリクエスト**:
+   - フロントエンドの `actions.ts` では、`Hono` クライアント (`hc<AppType>`) を使用して、バックエンドの`/api/v1/health`エンドポイントに対して`createPost`関数を介してリモートプロシージャコールを実行します。
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+3. **バックエンドでのリクエスト処理**:
+   - バックエンドの `index.ts` で設定されたルートとコントローラーが、クライアントからのRPCリクエストを受け取り、適切に処理します。
+   - コントローラー (`controller.ts`) はリクエストデータを検証し、ビジネスロジックを実行してレスポンスを生成します。
 
-```
-cd my-turborepo
-npx turbo login
-```
+4. **レスポンスの返却**:
+   - 処理結果がクライアントに返され、フロントエンドの`page.tsx`で結果がユーザーに表示されます。
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
